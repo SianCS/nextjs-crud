@@ -1,13 +1,13 @@
-import prisma from '@/lib/prisma';
-import { signInFormSchema } from '@/lib/schemas/auth.schema';
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import * as bcrypt from 'bcrypt';
-import { ROUTE } from '@/constants/route';
+import prisma from "@/lib/prisma";
+import { signInFormSchema } from "@/lib/schemas/auth.schema";
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import * as bcrypt from "bcrypt";
+import { ROUTE } from "@/constants/route";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
-    signIn: ROUTE.SIGN_IN
+    signIn: ROUTE.SIGN_IN,
   },
   providers: [
     Credentials({
@@ -16,7 +16,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!success) return null;
 
         const user = await prisma.user.findUnique({
-          where: { email: data.email }
+          where: { email: data.email },
         });
 
         if (!user || !user.password) return null;
@@ -25,8 +25,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isMatch) return null;
 
         return user;
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     jwt({ token, user }) {
@@ -42,6 +42,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.lastName = token.lastName;
       if (token.id) session.user.id = token.id;
       return session;
-    }
-  }
+    },
+  },
 });
