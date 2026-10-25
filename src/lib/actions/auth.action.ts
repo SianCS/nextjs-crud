@@ -11,7 +11,7 @@ import { redirect } from 'next/navigation';
 
 export async function signUpWithCredentials(
   input: unknown
-): Promise<ActionResult> {
+): Promise<ActionResult<unknown, Record<string, unknown>>> {
   const { data, success, error } = signUpFormSchema.safeParse(input);
   if (!success)
     return {

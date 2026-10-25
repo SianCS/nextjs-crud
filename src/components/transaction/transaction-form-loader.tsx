@@ -1,6 +1,5 @@
 import TransactionForm from '@/components/transaction/transaction-form';
 import { TRANSACTION_TYPE } from '@/constants/transaction.constant';
-import { Prisma, TransactionType } from '@/generated/prisma';
 import {
   createTransaction,
   updateTransaction
@@ -12,16 +11,6 @@ import {
 import { notFound } from 'next/navigation';
 
 type TransactionFormLoader = {
-  // transaction?: {
-  //   id: string;
-  //   payee: string;
-  //   date: Date;
-  //   amount: Prisma.Decimal;
-  //   category: {
-  //     id: string;
-  //     type: TransactionType;
-  //   };
-  // };
   id?: string;
   mode: 'create' | 'edit' | 'duplicate';
 };

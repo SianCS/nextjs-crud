@@ -1,5 +1,4 @@
 import { TRANSACTION_TYPE } from '@/constants/transaction.constant';
-import { Prisma } from '@/generated/prisma';
 import { auth } from '@/lib/auth/auth';
 import prisma from '@/lib/prisma';
 

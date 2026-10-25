@@ -19,7 +19,7 @@ export default function SignUpPage() {
     <Card className="w-full max-w-lg">
       <CardHeader>
         <CardTitle className="text-2xl">Create new account</CardTitle>
-        <CardDescription>Get Started - It's free</CardDescription>
+        <CardDescription>Get Started - It&apos;s free</CardDescription>
       </CardHeader>
       <CardContent>
         <SignUpForm />

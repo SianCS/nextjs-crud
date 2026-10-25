@@ -35,8 +35,9 @@ export default function SignUpForm() {
       try {
         const res = await signUpWithCredentials(data);
         if (!res.success) {
-          if (res.details?.email) {
-            form.setError('email', { message: res.details.email });
+          const emailError = res.details?.email;
+          if (typeof emailError === 'string') {
+            form.setError('email', { message: emailError });
           } else {
             toast.error(res.message);
           }

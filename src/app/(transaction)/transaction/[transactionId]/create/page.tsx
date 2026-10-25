@@ -6,9 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { fetchTransactionById } from '@/lib/datas/transaction.data';
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Create Transaction'
