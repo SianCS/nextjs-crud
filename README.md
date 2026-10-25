@@ -2,6 +2,8 @@
 
 A full-stack personal finance app built with the Next.js App Router. Record income and expenses by category, then edit, duplicate or delete them — all through Server Actions, with every query scoped to the signed-in user.
 
+**Live demo:** https://nextjs-crud-gold-gamma.vercel.app (sign up with any email — it's a demo database)
+
 ![Transactions](docs/transactions.png)
 
 <details>
