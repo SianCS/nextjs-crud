@@ -21,12 +21,12 @@ import {
 } from "@/components/ui/select";
 import { ROUTE } from "@/constants/route";
 import { TRANSACTION_TYPE } from "@/constants/transaction.constant";
-import { Category, Prisma, TransactionType } from "@/generated/prisma";
-import { createTransaction } from "@/lib/actions/transaction.action";
+import { Category, TransactionType } from "@/generated/prisma";
 import { transactionFormSchema } from "@/lib/schemas/transaction.schema";
 import { ActionResult } from "@/types/action-result.type";
 import { TransactionFormInput } from "@/types/transaction.type";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import Link from "next/link";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -109,13 +109,23 @@ export default function TransactionForm(props: TransactionFormProps) {
     selectedType === TRANSACTION_TYPE.EXPENSE ? expenses : incomes;
 
   const onSubmit: SubmitHandler<TransactionFormInput> = async (data) => {
-    if (mode === "edit") {
-      await action(props.transaction.id, data);
-    } else {
-      action(data);
-    }
+    const successMessage =
+      mode === "edit"
+        ? "Updated transaction successfully"
+        : "Created transaction successfully";
 
-    toast.success("Created transaction successfully");
+    try {
+      if (mode === "edit") {
+        await action(props.transaction.id, data);
+      } else {
+        await action(data);
+      }
+      toast.success(successMessage);
+    } catch (error) {
+      // action สำเร็จจะ redirect กลับหน้ารายการ ซึ่ง Next.js ส่งมาในรูป error
+      if (isRedirectError(error)) toast.success(successMessage);
+      else toast.error("Something went wrong");
+    }
   };
 
   return (
