@@ -11,6 +11,3 @@ export const transactionFormSchema = z.object({
     .regex(/^[0-9]+(\.[0-9]{1,2})?$/)
     .refine(value => +value)
 });
-
-export const transactionFormSchemaExcludeTypeSchema =
-  transactionFormSchema.transform(({ type, ...value }) => value);

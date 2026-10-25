@@ -2,30 +2,40 @@
 
 import { ROUTE } from '@/constants/route';
 import { auth } from '@/lib/auth/auth';
-import { fetchTransactionById } from '@/lib/datas/transaction.data';
 import prisma from '@/lib/prisma';
-import {
-  transactionFormSchema,
-  transactionFormSchemaExcludeTypeSchema
-} from '@/lib/schemas/transaction.schema';
+import { transactionFormSchema } from '@/lib/schemas/transaction.schema';
 import { ActionResult } from '@/types/action-result.type';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+// Server Action เป็น endpoint ที่ใครก็ POST เรียกได้ จึงต้องเช็ค session และเจ้าของข้อมูลที่ฝั่ง server ทุกครั้ง
+async function requireUserId(): Promise<string> {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error('Session not found');
+  return session.user.id;
+}
+
+// ตรวจข้อมูลฟอร์ม และเช็คว่า category ตรงกับประเภท (รายรับ/รายจ่าย) ที่เลือก
+async function parseTransactionInput(input: unknown) {
+  const { data, success } = transactionFormSchema.safeParse(input);
+  if (!success) throw new Error('Validation Error');
+
+  const { type, ...transaction } = data;
+  const category = await prisma.category.findUnique({
+    where: { id: transaction.categoryId }
+  });
+  if (!category || category.type !== type)
+    throw new Error('Category does not match transaction type');
+
+  return transaction;
+}
+
 export async function createTransaction(input: unknown): Promise<ActionResult> {
   try {
-    const { data, success } =
-      transactionFormSchemaExcludeTypeSchema.safeParse(input);
-    if (!success) throw new Error('Validation Error');
+    const userId = await requireUserId();
+    const data = await parseTransactionInput(input);
 
-    const session = await auth();
-    console.log(session);
-    if (!session || !session.user || !session.user.id)
-      throw new Error('Session not found');
-
-    await prisma.transaction.create({
-      data: { ...data, userId: session.user.id }
-    });
+    await prisma.transaction.create({ data: { ...data, userId } });
     revalidatePath(ROUTE.TRANSACTION);
   } catch (error) {
     console.log(error);
@@ -35,7 +45,10 @@ export async function createTransaction(input: unknown): Promise<ActionResult> {
 }
 
 export async function deleteTransaction(id: string) {
-  await prisma.transaction.delete({ where: { id } });
+  const userId = await requireUserId();
+
+  // ใส่ userId ใน where ด้วย ถ้า id เป็นของคนอื่นจะไม่มีอะไรถูกลบ
+  await prisma.transaction.deleteMany({ where: { id, userId } });
   revalidatePath(ROUTE.TRANSACTION);
 }
 
@@ -44,22 +57,14 @@ export async function updateTransaction(
   input: unknown
 ): Promise<ActionResult> {
   try {
-    const { data, success } =
-      transactionFormSchemaExcludeTypeSchema.safeParse(input);
-    if (!success) throw new Error('Validation Error');
+    const userId = await requireUserId();
+    const data = await parseTransactionInput(input);
 
-    const session = await auth();
-
-    if (!session || !session.user || !session.user.id)
-      throw new Error('Session not found');
-
-    const transaction = await fetchTransactionById(id);
-    if (!transaction) throw new Error('Transaction with this id was not found');
-
-    await prisma.transaction.update({
+    const { count } = await prisma.transaction.updateMany({
       data,
-      where: { id }
+      where: { id, userId }
     });
+    if (count === 0) throw new Error('Transaction with this id was not found');
     revalidatePath(ROUTE.TRANSACTION);
   } catch (error) {
     console.log(error);
