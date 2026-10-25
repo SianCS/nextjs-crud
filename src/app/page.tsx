@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Shark Tracker No.1 Expense Manager'
+  title: 'Expense Tracker'
 };
 
 export default function Home() {
