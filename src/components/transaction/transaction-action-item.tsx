@@ -25,11 +25,12 @@ export default function TransactionItemAction({ id }: { id: string }) {
         <DropdownMenuItem asChild className="cursor-pointer">
           <Link href={ROUTE.EDIT_TRANSACTION(id)}>Edit</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="cursor-pointer w-full">
-          <form action={deleteTransaction.bind(null, id)}>
-            <button>Delete</button>
-          </form>
-        </DropdownMenuItem>
+        {/* ให้ทั้งแถวเมนูเป็นปุ่ม submit กดตรงไหนของแถว (หรือกด Enter) ก็ลบได้ */}
+        <form action={deleteTransaction.bind(null, id)}>
+          <DropdownMenuItem asChild className="cursor-pointer w-full">
+            <button type="submit">Delete</button>
+          </DropdownMenuItem>
+        </form>
       </DropdownMenuContent>
     </DropdownMenu>
   );
